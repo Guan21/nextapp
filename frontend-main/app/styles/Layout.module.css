@@ -1,0 +1,108 @@
+/* コンテナ全体のスタイル */
+.container {
+    font-family: Arial, sans-serif;
+    background-color: #f5f5f5;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+}
+
+/* ウォレット接続ボタン */
+.walletButton {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    padding: 0.5rem 1rem;
+    font-size: 1rem;
+    background-color: #007bff;
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+/* 中央のフォームコンテナ */
+.formContainer {
+    padding: 2rem;
+    background-color: #c2bdbd;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(12, 12, 12, 0.911);
+    width: 100%;
+    max-width: 400px;
+    text-align: center;
+}
+
+.formTitle {
+    color: #333;
+    margin-bottom: 1rem;
+}
+
+.inputGroup {
+    margin-bottom: 1rem;
+    text-align: left;
+}
+
+.inputGroup label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: bold;
+}
+
+.inputGroup input {
+    padding: 0.5rem;
+    width: 100%;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+}
+
+/* 送金ボタン */
+.sendButton {
+    padding: 0.5rem 1.5rem;
+    font-size: 1rem;
+    background-color: #28a745;
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    width: 100%;
+}
+
+.disabledButton {
+    background-color: #ccc;
+    cursor: not-allowed;
+}
+
+/* トランザクション表示 */
+.transactionContainer {
+    margin-top: 2rem;
+    padding: 1rem;
+    background-color: #e9ecef;
+    border-radius: 8px;
+    text-align: center;
+    width: 100%;
+    max-width: 400px;
+}
+
+.transactionContainer p {
+    word-break: break-word;
+    color: #007bff;
+}
+
+/* トランザクション表示 */
+.stETHContainer {
+    margin-top: 2rem;
+    padding: 1rem;
+    background-color: #b3c952;
+    border-radius: 8px;
+    text-align: center;
+    width: 100%;
+    max-width: 400px;
+}
+
+.stETHContainer p {
+    word-break: break-word;
+    color: #ff00ea;
+}
