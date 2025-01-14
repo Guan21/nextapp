@@ -13,8 +13,13 @@ pnpm install
 # or
 bun install
 ```
+Second, set your rpc
+```
+ .env.local
 
-Second, run the development server:
+```
+
+Third, run the development server:
 
 ```bash
 npm run dev
