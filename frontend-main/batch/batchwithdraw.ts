@@ -1,8 +1,7 @@
 import Web3 from "web3";
 import dotenv from 'dotenv';
-import { WHITHDRAW_ABI } from "../ABI/WithdrawERC721";
 import { LIDO_ABI } from "../ABI/Lido";
-import { WITHDRAWAL_QUEUE_ABI } from "../ABI/WithdrawalQueue";
+import { WITHDRAWAL_QUEUE_ABI } from "../ABI/Withdrawalqueue";
 dotenv.config({ path: '../.env.local' });
 
 const LIDO_ADDRESS = "0x3F1c547b21f65e10480dE3ad8E19fAAC46C95034"
