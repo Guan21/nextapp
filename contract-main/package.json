@@ -1,0 +1,11 @@
+{
+  "name": "hardhat-project",
+  "scripts": {
+    "format": "prettier --write \"contracts/**/*.{js,ts,sol}\" \"test/**/*.{js,ts}\""
+  },
+  "devDependencies": {
+    "@nomicfoundation/hardhat-toolbox": "^5.0.0",
+    "hardhat": "^2.22.17",
+    "prettier-plugin-solidity": "^1.4.1"
+  }
+}
