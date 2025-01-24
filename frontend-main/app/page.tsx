@@ -5,6 +5,9 @@ import styles from "./styles/Layout.module.css";
 import { connectWallet, sendTransaction, transactionCallback } from "../actions/stake";
 import { stETH } from "../actions/stETH";
 import { transfor } from "../actions/transfor";
+import { withdrawfunction, callback } from "../actions/withdraw"
+import { AccountValue } from "@lidofinance/lido-ethereum-sdk/core";
+import { TOKEN_OPTIONS, TokenType } from "../constants/tokenOptions";
 
 const Home = () => {
   const [account, setAccount] = useState<string | null>(null);
@@ -13,6 +16,8 @@ const Home = () => {
   const [transactionHash, setTransactionHash] = useState<string | null>(null);
   const [balanceETH, setBalanceETH] = useState<string | null>(null);
   const [transforresult, setTransforresult] = useState<string | null>(null);
+  const [token, setToken] = useState<TokenType>('stETH');
+  const [withdrawHash, setWithdrawHash] = useState<string | null>(null)
 
   return (
     <div className={styles.container}>
@@ -117,6 +122,47 @@ const Home = () => {
         )}
       </div>
 
+      {/* Withdraw ETH遷移フォーム */}
+      <div className={styles.formContainer}>
+        <h2 className={styles.formTitle}>Withdraw</h2>
+        <div className={styles.inputGroup}>
+          <label htmlFor="recipient">withdraw ETH type</label>
+          <select
+            id="recipient"
+            value={token}
+            onChange={(e) => setToken(e.target.value as TokenType)}
+            className="w-full p-2 border rounded"
+          >
+            {TOKEN_OPTIONS.map(option => (
+              <option key={option.value} value={option.value}>
+                {option.label}
+              </option>
+            ))}
+          </select>
+        </div>
+        <div className={styles.inputGroup}>
+          <label htmlFor="amount">ステーク額 (ETH):</label>
+          <input
+            id="amount"
+            type="number"
+            placeholder="送金額 (ETH)"
+            value={amount}
+            onChange={(e) => setAmount(e.target.value)}
+          />
+        </div>
+        <button
+          className={`${styles.sendButton} ${!account && styles.disabledButton}`}
+          onClick={() => account && withdrawfunction(account as AccountValue, amount, token, callback, setWithdrawHash)}
+          disabled={!account}
+        >
+          withdraw {token}
+        </button>
+        {withdrawHash && (
+          <div className={styles.stETHContainer}>
+            <p>{withdrawHash}</p>
+          </div>
+        )}
+      </div>
 
 
     </div>
