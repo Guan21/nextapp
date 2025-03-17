@@ -14,7 +14,7 @@ async function getsharestETH() {
         const account = web3.eth.accounts.privateKeyToAccount(formattedPrivateKey);
         web3.eth.accounts.wallet.add(account);
         web3.eth.defaultAccount = account.address;
-
+ 
         const lidoContract = new web3.eth.Contract(LIDO_ABI, LIDO_ADDRESS);
         const stETHBalance = await lidoContract.methods.balanceOf(account.address).call();
 
