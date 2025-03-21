@@ -61,19 +61,16 @@ contract L1StandardBridge {
         uint256 len = ETHYieldManager.getBalanceKeysLength();
         require(len > 0, "No balance keys found");
 
-        address keys;
-        uint256 values;
-        // address[] memory keys = new address[](len);
-        // uint256[] memory values = new uint256[](len);
+        address[] memory keys = new address[](len);
+        uint256[] memory values = new uint256[](len);
 
         for (uint256 i = 0; i < len; i++) {
             address key = ETHYieldManager.getBalanceKey(i);
-            // keys[i] = key    ;
-            // values[i] = ETHYieldManager.getReceivedAmount(key);
-            keys = key;
-            values = ETHYieldManager.getReceivedAmount(key);
+            keys[i] = key;
+            values[i] = ETHYieldManager.getReceivedAmount(key);
         }
-        emit SendDetails(
+
+        emit SendDetailslist(
             CrossDomainManager,
             targetL2Contract,
             msg.sender,
@@ -83,8 +80,7 @@ contract L1StandardBridge {
 
         // キーと値の配列を ABI エンコードして message にする
         bytes memory message = abi.encodeWithSignature(
-            // "mintTokens(address[],uint256[])",
-            "mintTokens(address,uint256)",
+            "mintTokenslist(address[],uint256[])",
             keys,
             values
         );
@@ -114,11 +110,11 @@ contract L1StandardBridge {
     }
 
     // ログ出力用
-    event SendDetails(
+    event SendDetailslist(
         address messengerAddress,
         address receiverAddress,
         address sender,
-        address keys,
-        uint256 values
+        address[] keys,
+        uint256[] values
     );
 }

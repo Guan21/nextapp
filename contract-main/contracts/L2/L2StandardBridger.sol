@@ -14,7 +14,7 @@ interface IL2CorssDomainMessenger {
 }
 
 contract L2StandardBridge is ERC20 {
-    address public l1DepositContractAddress; // L1のDepositContractのアドレス 
+    address public l1DepositContractAddress; // L1のDepositContractのアドレス
     address public l2CrossDomainMessengerAddress; // L2のCrossDomainMessengerのアドレス 0x4200000000000000000000000000000000000007
 
     constructor(
@@ -25,24 +25,9 @@ contract L2StandardBridge is ERC20 {
         l2CrossDomainMessengerAddress = _l2CrossDomainMessengerAddress;
     }
 
-    function mintTokens(address to, uint256 amount) external {
-        require(
-            msg.sender == l2CrossDomainMessengerAddress,
-            "Only the L2 CrossDomainMessenger can trigger minting" // L2のCrossDomainMessengerからのみ呼び出し可能
-        );
-
-        require(
-            IL2CorssDomainMessenger(l2CrossDomainMessengerAddress)
-                .xDomainMessageSender() == l1DepositContractAddress,
-            "Only the L1 deposit contract can trigger minting" // L1のDepositContractからのみ呼び出し可能
-        );
-
-        _mint(to, amount);
-    }
-
-    function mintTokenslist(
+    function mintTokens(
         address[] calldata to,
-        uint256[] memory amount
+        uint256[] calldata amount
     ) external {
         require(
             msg.sender == l2CrossDomainMessengerAddress,
