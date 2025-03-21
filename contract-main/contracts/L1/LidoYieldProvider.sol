@@ -102,9 +102,6 @@ contract LidoYieldProvider {
     // uint256[] public unstakeRequests;
     // uint256 public lastClaimedIndex;
 
-    // 初期設定時のデフォルトETHYieldManagerアドレス（必要に応じて変更してください）
-    // IYieldManager public ETHYieldManager = IYieldManager(0x6Fc280cb465D218f3D6dd12C7D6e4279495e7f67);
-
     // 定数アドレス（Sepolia 用例）
     ILido public constant LIDO =
         ILido(0x3e3FE7dBc6B4C189E7128855dD526361c49b40Af);

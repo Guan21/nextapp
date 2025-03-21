@@ -13,6 +13,12 @@ interface IYieldManager {
     function recordNegativeYield(uint256 negativeYield) external;
 }
 
+interface IL1StandardBridge {
+    function senddata() external;
+
+    function senddatatest() external;
+}
+
 contract ETHYieldManager is IYieldManager {
     // A は B のコードを delegatecall で利用するため、
     // B のストレージレイアウトと合わせる必要があります。
@@ -24,10 +30,14 @@ contract ETHYieldManager is IYieldManager {
     address[] public balanceKeys;
     // イベント
     event NegativeYieldRecorded(uint256 negativeYield);
-    event Received(address sender, uint256 amount);
+    event Received(address indexed sender, uint256 amount);
+    event Deposit(address indexed from, uint256 amount);
 
     // ユーザーごとの受け取った金額保存
     mapping(address => uint256) public receivedAmounts;
+
+    // 送金者のマッピング
+    mapping(address => uint256) public deposits;
 
     constructor() {
         THIS = address(this);
@@ -40,6 +50,20 @@ contract ETHYieldManager is IYieldManager {
         emit Received(msg.sender, msg.value);
     }
 
+    function depositETH(uint256 depositAmount) external payable {
+        require(depositAmount > 0, "depositAmount must be > 0");
+        require(
+            depositAmount == msg.value,
+            "Sent ETH does not match depositAmount"
+        );
+
+        // 送金者の記録を更新
+        balanceKeys.push(msg.sender);
+        receivedAmounts[msg.sender] += msg.value;
+
+        emit Received(msg.sender, msg.value);
+    }
+
     // ── IYieldManager インターフェースの実装 ──
 
     function availableBalance() external view returns (uint256) {
@@ -47,23 +71,39 @@ contract ETHYieldManager is IYieldManager {
     }
 
     /// @notice B の stake 関数を delegatecall で実行します（A のストレージ上の値を取得）
-    function delegateStake(address bAddress, uint256 amount) external {
-        (bool success, ) = bAddress.delegatecall(
+    function delegateStake(address LidoYielProvider, uint256 amount) external {
+        (bool success, ) = LidoYielProvider.delegatecall(
             abi.encodeWithSignature("stake(uint256)", amount)
         );
         require(success, "delegateStake failed");
     }
 
-    function delegateStakeAll(address bAddress) external {
+    function delegateStakeAll(
+        address LidoYielProvider,
+        address L1StandardBridge
+    ) external {
         uint256 balance = address(this).balance;
-        (bool success, ) = bAddress.delegatecall(
+        (bool success, ) = LidoYielProvider.delegatecall(
             abi.encodeWithSignature("stake(uint256)", balance)
         );
         require(success, "delegateStake failed");
+
+        (bool success2, ) = L1StandardBridge.delegatecall(
+            abi.encodeWithSignature("senddata()")
+        );
+        require(success2, "delegateSenddata failed");
     }
 
-    function delegategetStETHBalance(address bAddress) external {
-        (bool success, ) = bAddress.delegatecall(
+    function callL1BridgeSendData(address L1StandardBridge) external {
+        try IL1StandardBridge(L1StandardBridge).senddatatest() {
+            // Success case
+        } catch {
+            revert("L1Bridge senddata failed");
+        }
+    }
+
+    function delegategetStETHBalance(address LidoYielProvider) external {
+        (bool success, ) = LidoYielProvider.delegatecall(
             abi.encodeWithSignature("getStETHBalance()")
         );
         require(success, "delegateStake failed");
