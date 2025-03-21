@@ -27,6 +27,8 @@ interface IETHYieldManager {
 contract L1StandardBridge {
     // ETH Sepolia crossDomainManager - L1 0x58Cc85b8D04EA49cC6DBd3CbFFd00B4B8D6cb3ef
     // OP Sepolia crossDomainManager - L2 0x4200000000000000000000000000000000000007
+
+    // 既存のストレージ変数
     address public immutable CrossDomainManager;
     address public targetL2Contract;
 
@@ -55,7 +57,10 @@ contract L1StandardBridge {
 
     // Stake情報送信
     function senddata() external {
+        // require(msg.sender == address(ETHYieldManager), "Not ETHYieldManager");
         uint256 len = ETHYieldManager.getBalanceKeysLength();
+        require(len > 0, "No balance keys found");
+
         address keys;
         uint256 values;
         // address[] memory keys = new address[](len);
@@ -63,7 +68,7 @@ contract L1StandardBridge {
 
         for (uint256 i = 0; i < len; i++) {
             address key = ETHYieldManager.getBalanceKey(i);
-            // keys[i] = key;
+            // keys[i] = key    ;
             // values[i] = ETHYieldManager.getReceivedAmount(key);
             keys = key;
             values = ETHYieldManager.getReceivedAmount(key);
@@ -109,7 +114,6 @@ contract L1StandardBridge {
     }
 
     // ログ出力用
-    // event SendDetails(address messengerAddress, address receiverAddress, address sender, address[] keys, uint256[] values);
     event SendDetails(
         address messengerAddress,
         address receiverAddress,

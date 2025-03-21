@@ -15,8 +15,6 @@ interface IYieldManager {
 
 interface IL1StandardBridge {
     function senddata() external;
-
-    function senddatatest() external;
 }
 
 contract ETHYieldManager is IYieldManager {
@@ -88,14 +86,15 @@ contract ETHYieldManager is IYieldManager {
         );
         require(success, "delegateStake failed");
 
-        (bool success2, ) = L1StandardBridge.delegatecall(
-            abi.encodeWithSignature("senddata()")
-        );
-        require(success2, "delegateSenddata failed");
+        try IL1StandardBridge(L1StandardBridge).senddata() {
+            // Success case
+        } catch {
+            revert("L1Bridge senddata failed");
+        }
     }
 
     function callL1BridgeSendData(address L1StandardBridge) external {
-        try IL1StandardBridge(L1StandardBridge).senddatatest() {
+        try IL1StandardBridge(L1StandardBridge).senddata() {
             // Success case
         } catch {
             revert("L1Bridge senddata failed");

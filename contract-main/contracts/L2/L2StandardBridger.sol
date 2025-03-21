@@ -13,8 +13,8 @@ interface IL2CorssDomainMessenger {
     ) external;
 }
 
-contract L2ERC20Token is ERC20 {
-    address public l1DepositContractAddress; // L1のDepositContractのアドレス 0xea69A76d36111364557c55D3A878F3B627A6559E
+contract L2StandardBridge is ERC20 {
+    address public l1DepositContractAddress; // L1のDepositContractのアドレス 
     address public l2CrossDomainMessengerAddress; // L2のCrossDomainMessengerのアドレス 0x4200000000000000000000000000000000000007
 
     constructor(
