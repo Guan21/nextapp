@@ -34,9 +34,6 @@ contract ETHYieldManager is IYieldManager {
     // ユーザーごとの受け取った金額保存
     mapping(address => uint256) public receivedAmounts;
 
-    // 送金者のマッピング
-    mapping(address => uint256) public deposits;
-
     constructor() {
         THIS = address(this);
     }
