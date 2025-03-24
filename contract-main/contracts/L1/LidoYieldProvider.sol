@@ -162,4 +162,85 @@ contract LidoYieldProvider {
         StakeAddress = address(this);
         StakedBalance = LIDO.balanceOf(address(this));
     }
+
+    // /*** WITHDRAWAL FUNCTIONS ***/
+    // /**
+    //  * @notice ユーザーが stETH を引き出す (WithdrawalQueue にリクエストを作成)
+    //  * @param amount 引き出したい stETH の数量(wei単位)
+    //  */
+    // function withdrawStakedETH(uint256 amount) external {
+    //     // deposit のみで制御しているが、コントラクトが本当に stETH を持っているか要注意
+    //     require(deposits[msg.sender] >= amount, "Insufficient stake");
+
+    //     // WithdrawalQueue に stETH を引き出してもらうため、まず approve が必要
+    //     bool approved = stETH.approve(address(withdrawalQueue), amount);
+    //     require(approved, "Approval failed");
+
+    //     uint256[] memory amounts = new uint256[](1);
+    //     amounts[0] = amount;
+
+    //     // Lido側へのwithdrawリクエストを送る
+    //     uint256[] memory requestIds = withdrawalQueue.requestWithdrawals(
+    //         amounts,
+    //         msg.sender // リクエストが完了した際、ETH受取アドレスはユーザー
+    //     );
+
+    //     // ユーザー毎にリクエストIDを追跡
+    //     withdrawalRequests[msg.sender] = requestIds;
+
+    //     // Deposit記録を減算（厳密には、コントラクト残高内のstETHをUserごとに割り当てしている想定）
+    //     deposits[msg.sender] -= amount;
+    // }
+
+    // /**
+    //  * @notice ユーザーがfinalized(完了)したWithdrawalを受け取る
+    //  *         （WithdrawalQueueのclaimWithdrawalsを呼ぶ）
+    //  */
+    // function claimWithdrawnETH() external {
+    //     uint256[] memory requestIds = withdrawalRequests[msg.sender];
+    //     require(requestIds.length > 0, "No pending withdrawals");
+
+    //     bool[] memory readyStatus = checkWithdrawalStatus(requestIds);
+
+    //     // 引き出し可能なリクエストの個数をカウント
+    //     uint256 readyCount = 0;
+    //     for (uint i = 0; i < readyStatus.length; i++) {
+    //         if (readyStatus[i]) readyCount++;
+    //     }
+    //     require(readyCount > 0, "No requests ready for claim");
+
+    //     // finalizedなリクエストのみを抽出
+    //     uint256[] memory finalizedRequestIds = new uint256[](readyCount);
+    //     uint256 currentIndex = 0;
+    //     for (uint i = 0; i < requestIds.length; i++) {
+    //         if (readyStatus[i]) {
+    //             finalizedRequestIds[currentIndex] = requestIds[i];
+    //             currentIndex++;
+    //         }
+    //     }
+
+    //     // コントラクトではなくユーザー自身のアドレスにETHが送られる
+    //     withdrawalQueue.claimWithdrawals(finalizedRequestIds);
+
+    //     // 未完了リクエストだけを再保存
+    //     uint256[] memory remainingRequests = new uint256[](
+    //         requestIds.length - readyCount
+    //     );
+    //     currentIndex = 0;
+    //     for (uint i = 0; i < requestIds.length; i++) {
+    //         if (!readyStatus[i]) {
+    //             remainingRequests[currentIndex] = requestIds[i];
+    //             currentIndex++;
+    //         }
+    //     }
+
+    //     // リクエストが全て残っていない場合は初期化
+    //     if (remainingRequests.length > 0) {
+    //         withdrawalRequests[msg.sender] = remainingRequests;
+    //     } else {
+    //         delete withdrawalRequests[msg.sender];
+    //     }
+
+    //     emit WithdrawalsClaimed(msg.sender, finalizedRequestIds);
+    // }
 }

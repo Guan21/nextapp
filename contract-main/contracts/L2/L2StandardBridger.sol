@@ -1,8 +1,6 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
-import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
-
 interface IL2CorssDomainMessenger {
     function xDomainMessageSender() external view returns (address);
 
@@ -19,7 +17,7 @@ interface IWrapETH {
     function withdraw(address from, uint256 amount) external;
 }
 
-contract L2StandardBridge is ERC20 {
+contract L2StandardBridge {
     address public l1DepositContractAddress; // L1のDepositContractのアドレス
     address public l2CrossDomainMessengerAddress; // L2のCrossDomainMessengerのアドレス 0x4200000000000000000000000000000000000007
     address public WrapETHAddress;
@@ -27,12 +25,12 @@ contract L2StandardBridge is ERC20 {
     constructor(
         address _l1DepositContractAddress,
         address _l2CrossDomainMessengerAddress
-    ) ERC20("Bridge Test Token", "DCETH") {
+    ) {
         l1DepositContractAddress = _l1DepositContractAddress;
         l2CrossDomainMessengerAddress = _l2CrossDomainMessengerAddress;
     }
 
-    function set_targetL2Contract(address _WrapETHAddress) external {
+    function set_WrapETHContract(address _WrapETHAddress) external {
         WrapETHAddress = _WrapETHAddress;
     }
 
@@ -40,10 +38,10 @@ contract L2StandardBridge is ERC20 {
         address[] calldata to,
         uint256[] calldata amount
     ) external {
-        require(
-            msg.sender == l2CrossDomainMessengerAddress,
-            "Only the L2 CrossDomainMessenger can trigger minting" // L2のCrossDomainMessengerからのみ呼び出し可能
-        );
+        // require(
+        //     msg.sender == l2CrossDomainMessengerAddress,
+        //     "Only the L2 CrossDomainMessenger can trigger minting" // L2のCrossDomainMessengerからのみ呼び出し可能
+        // );
 
         require(
             IL2CorssDomainMessenger(l2CrossDomainMessengerAddress)
@@ -55,10 +53,10 @@ contract L2StandardBridge is ERC20 {
     }
 
     function burnTokens(address from, uint256 amount) external {
-        require(
-            msg.sender == l2CrossDomainMessengerAddress,
-            "Only the L2 CrossDomainMessenger can trigger burning" // L2のCrossDomainMessengerからのみ呼び出し可能
-        );
+        // require(
+        //     msg.sender == l2CrossDomainMessengerAddress,
+        //     "Only the L2 CrossDomainMessenger can trigger burning" // L2のCrossDomainMessengerからのみ呼び出し可能
+        // );
 
         require(
             IL2CorssDomainMessenger(l2CrossDomainMessengerAddress)

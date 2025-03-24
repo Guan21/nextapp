@@ -14,7 +14,9 @@ interface IYieldManager {
 }
 
 interface IL1StandardBridge {
-    function senddata() external;
+    function sendstakedata() external;
+
+    function burnL2Tokens(address from, uint256 amount) external;
 }
 
 contract ETHYieldManager is IYieldManager {
@@ -83,15 +85,27 @@ contract ETHYieldManager is IYieldManager {
         );
         require(success, "delegateStake failed");
 
-        try IL1StandardBridge(L1StandardBridge).senddata() {
+        try IL1StandardBridge(L1StandardBridge).sendstakedata() {
             // Success case
         } catch {
             revert("L1Bridge senddata failed");
         }
     }
 
-    function callL1BridgeSendData(address L1StandardBridge) external {
-        try IL1StandardBridge(L1StandardBridge).senddata() {
+    function callL1BridgeSendStakeData(address L1StandardBridge) external {
+        try IL1StandardBridge(L1StandardBridge).sendstakedata() {
+            // Success case
+        } catch {
+            revert("L1Bridge senddata failed");
+        }
+    }
+
+    function callL1BridgeBurnTokens(
+        address L1StandardBridge,
+        address from,
+        uint256 amount
+    ) external {
+        try IL1StandardBridge(L1StandardBridge).burnL2Tokens(from, amount) {
             // Success case
         } catch {
             revert("L1Bridge senddata failed");

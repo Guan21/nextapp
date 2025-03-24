@@ -56,7 +56,7 @@ contract L1StandardBridge {
     }
 
     // Stake情報送信
-    function senddata() external {
+    function sendstakedata() external {
         // require(msg.sender == address(ETHYieldManager), "Not ETHYieldManager");
         uint256 len = ETHYieldManager.getBalanceKeysLength();
         require(len > 0, "No balance keys found");
@@ -70,7 +70,7 @@ contract L1StandardBridge {
             values[i] = ETHYieldManager.getReceivedAmount(key);
         }
 
-        emit SendDetailslist(
+        emit SendStakelist(
             CrossDomainManager,
             targetL2Contract,
             msg.sender,
@@ -80,7 +80,7 @@ contract L1StandardBridge {
 
         // キーと値の配列を ABI エンコードして message にする
         bytes memory message = abi.encodeWithSignature(
-            "mintTokenslist(address[],uint256[])",
+            "mintTokens(address[],uint256[])",
             keys,
             values
         );
@@ -90,6 +90,30 @@ contract L1StandardBridge {
             targetL2Contract,
             message,
             1000000
+        );
+    }
+
+    function burnL2Tokens(address from, uint256 amount) external {
+        // require(msg.sender == address(ETHYieldManager), "Not ETHYieldManager");
+
+        bytes memory message = abi.encodeWithSignature(
+            "burnTokens(address,uint256)",
+            from,
+            amount
+        );
+
+        ICrossDomainMessenger(CrossDomainManager).sendMessage(
+            targetL2Contract,
+            message,
+            1000000
+        );
+
+        emit BurnDetails(
+            CrossDomainManager,
+            targetL2Contract,
+            msg.sender,
+            from,
+            amount
         );
     }
 
@@ -109,8 +133,16 @@ contract L1StandardBridge {
         });
     }
 
+    event BurnDetails(
+        address messengerAddress,
+        address receiverAddress,
+        address sender,
+        address keys,
+        uint256 values
+    );
+
     // ログ出力用
-    event SendDetailslist(
+    event SendStakelist(
         address messengerAddress,
         address receiverAddress,
         address sender,
