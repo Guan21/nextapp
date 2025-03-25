@@ -139,4 +139,27 @@ contract ETHYieldManager is IYieldManager {
     function recordNegativeYield(uint256 negativeYield) external override {
         emit NegativeYieldRecorded(negativeYield);
     }
+
+    function getYieldStETH() external view returns (uint256) {
+        uint256 len = this.getBalanceKeysLength();
+        uint256 values = 0;
+
+        for (uint256 i = 0; i < len; i++) {
+            address key = this.getBalanceKey(i);
+            values += this.getReceivedAmount(key);
+        }
+
+        return StakedBalance - values;
+    }
+
+    function getBalanceKeysLengthPure() external view returns (uint256) {
+        uint256 count = 0;
+        uint256 len = this.getBalanceKeysLength();
+        for (uint256 i = 0; i < len; i++) {
+            if (this.getBalanceKey(i) != address(0)) {
+                count++;
+            }
+        }
+        return count;
+    }
 }
