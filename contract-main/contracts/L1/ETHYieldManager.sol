@@ -20,14 +20,17 @@ interface IL1StandardBridge {
 }
 
 contract ETHYieldManager is IYieldManager {
-    // A は B のコードを delegatecall で利用するため、
-    // B のストレージレイアウトと合わせる必要があります。
+    // ETHYieldManager は LidoYieldProvider のコードを delegatecall で利用するため、
+    // LidoYieldProvider のストレージレイアウトと合わせる必要があります。
     address public StakeAddress;
     uint256 public StakeBalance;
-    uint256 public StakedBalance;
+    uint256 public LidoYieldStakedBalance;
+    uint256 public StakedAllBalance;
 
     address public THIS;
     address[] public balanceKeys;
+    address[] public transactions;
+    
     // イベント
     event NegativeYieldRecorded(uint256 negativeYield);
     event Received(address indexed sender, uint256 amount);
@@ -35,6 +38,8 @@ contract ETHYieldManager is IYieldManager {
 
     // ユーザーごとの受け取った金額保存
     mapping(address => uint256) public receivedAmounts;
+    // 重複登録を防ぐためのmapping
+    mapping(address => bool) private isRecorded;
 
     constructor() {
         THIS = address(this);
@@ -53,9 +58,14 @@ contract ETHYieldManager is IYieldManager {
             depositAmount == msg.value,
             "Sent ETH does not match depositAmount"
         );
+        require(msg.sender != THIS, "this is not ETHyield");
 
         // 送金者の記録を更新
-        balanceKeys.push(msg.sender);
+        transactions.push(msg.sender);
+        if (!isRecorded[msg.sender]) {
+            balanceKeys.push(msg.sender);
+            isRecorded[msg.sender] = true;
+        }
         receivedAmounts[msg.sender] += msg.value;
 
         emit Received(msg.sender, msg.value);
@@ -79,17 +89,18 @@ contract ETHYieldManager is IYieldManager {
         address LidoYielProvider,
         address L1StandardBridge
     ) external {
+        try IL1StandardBridge(L1StandardBridge).sendstakedata() {
+            // Success case
+        } catch {
+            revert("L1Bridge senddata failed");
+        }
+
         uint256 balance = address(this).balance;
         (bool success, ) = LidoYielProvider.delegatecall(
             abi.encodeWithSignature("stake(uint256)", balance)
         );
         require(success, "delegateStake failed");
 
-        try IL1StandardBridge(L1StandardBridge).sendstakedata() {
-            // Success case
-        } catch {
-            revert("L1Bridge senddata failed");
-        }
     }
 
     function callL1BridgeSendStakeData(address L1StandardBridge) external {
@@ -132,6 +143,10 @@ contract ETHYieldManager is IYieldManager {
         return balanceKeys[index];
     }
 
+    function getTransactionNumber() external view returns (uint256) {
+        return transactions.length;
+    }
+
     function insurance() external pure override returns (address) {
         return address(0);
     }
@@ -141,15 +156,8 @@ contract ETHYieldManager is IYieldManager {
     }
 
     function getYieldStETH() external view returns (uint256) {
-        uint256 len = this.getBalanceKeysLength();
-        uint256 values = 0;
+        return LidoYieldStakedBalance - StakedAllBalance;
 
-        for (uint256 i = 0; i < len; i++) {
-            address key = this.getBalanceKey(i);
-            values += this.getReceivedAmount(key);
-        }
-
-        return StakedBalance - values;
     }
 
     function getBalanceKeysLengthPure() external view returns (uint256) {
