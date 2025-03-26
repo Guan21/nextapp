@@ -15,6 +15,7 @@ interface IYieldManager {
 
 interface IL1StandardBridge {
     function sendstakedata() external;
+    function sendPaymentData() external;
 
     function burnL2Tokens(address from, uint256 amount) external;
 }
@@ -26,20 +27,27 @@ contract ETHYieldManager is IYieldManager {
     uint256 public StakeBalance;
     uint256 public LidoYieldStakedBalance;
     uint256 public StakedAllBalance;
+    uint256 public paidStETH;
 
     address public THIS;
     address[] public balanceKeys;
     address[] public transactions;
+    address[] public paymentkeys;
     
     // イベント
     event NegativeYieldRecorded(uint256 negativeYield);
     event Received(address indexed sender, uint256 amount);
     event Deposit(address indexed from, uint256 amount);
+    event Payment(address indexed sender, uint256 amount);
 
     // ユーザーごとの受け取った金額保存
     mapping(address => uint256) public receivedAmounts;
     // 重複登録を防ぐためのmapping
     mapping(address => bool) private isRecorded;
+    // 利子分配の受け取った金額保存
+    mapping(address => uint256) public paymentAmounts;
+    // 重複登録を防ぐためのmapping
+    mapping(address => bool) private paymentisRecorded;
 
     constructor() {
         THIS = address(this);
@@ -123,6 +131,14 @@ contract ETHYieldManager is IYieldManager {
         }
     }
 
+    function callL1Bridgepayment(address L1StandardBridge) external {
+        try IL1StandardBridge(L1StandardBridge).sendPaymentData() {
+            // Success case
+        } catch {
+            revert("L1Bridge sendPaymentData failed");
+        }
+    }
+
     function delegategetStETHBalance(address LidoYielProvider) external {
         (bool success, ) = LidoYielProvider.delegatecall(
             abi.encodeWithSignature("getStETHBalance()")
@@ -156,8 +172,20 @@ contract ETHYieldManager is IYieldManager {
     }
 
     function getYieldStETH() external view returns (uint256) {
-        return LidoYieldStakedBalance - StakedAllBalance;
+        return LidoYieldStakedBalance - StakedAllBalance - paidStETH;
 
+    }
+
+    function getPaymentAmount(address sender) external view returns (uint256) {
+        return paymentAmounts[sender];
+    }
+
+    function getPaymentKeysLength() external view returns (uint256) {
+        return paymentkeys.length;
+    }
+
+    function getPaymentKey(uint256 index) external view returns (address) {
+        return paymentkeys[index];
     }
 
     function getBalanceKeysLengthPure() external view returns (uint256) {
@@ -169,5 +197,18 @@ contract ETHYieldManager is IYieldManager {
             }
         }
         return count;
+    }
+
+    function intersetPaymentMemory(address distibutiontarget, uint256 amount) external returns(bool) {
+        uint256 payablepayment = this.getYieldStETH();
+        require(payablepayment > amount, "not enough payments");
+        if (!paymentisRecorded[distibutiontarget]) {
+            paymentkeys.push(distibutiontarget);
+            paymentisRecorded[distibutiontarget] = true;
+        }
+        paymentAmounts[distibutiontarget] += amount;
+        paidStETH += amount;
+        emit Payment(distibutiontarget, amount);
+        return true;
     }
 }

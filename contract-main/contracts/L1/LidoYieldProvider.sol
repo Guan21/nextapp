@@ -87,6 +87,7 @@ contract LidoYieldProvider {
     uint256 public StakeBalance;
     uint256 public LidoYieldStakedBalance;
     uint256 public StakedAllBalance;
+    uint256 public paidStETH;
 
     // ETHYieldManager を表すインターフェース（delegatecall 時は ETHYieldManager の文脈で実行される）
     // B の実装アドレス

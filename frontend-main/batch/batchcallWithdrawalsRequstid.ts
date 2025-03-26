@@ -24,6 +24,7 @@ async function requestWithdrawalRequstID() {
         const web3 = new Web3(process.env.NEXT_PUBLIC_RPC_holesky_URL as string);
         console.log(process.env.NEXT_PUBLIC_RPC_holesky_URL);
 
+        // アカウントをプライベートキーから作成
         const formattedPrivateKey = `0x${process.env.PRIVATE_KEY as string}`;
         console.log(formattedPrivateKey);
         const account = web3.eth.accounts.privateKeyToAccount(formattedPrivateKey);
@@ -35,12 +36,14 @@ async function requestWithdrawalRequstID() {
         const getWithdrawalRequestsIDs: unknown[] = await withdrawalContract.methods.getWithdrawalRequests(process.env.WALLET_ADDRESS).call();
         console.log('Withdrawal Requests:', getWithdrawalRequestsIDs);
 
+        // show all Withdrawal Status
         if (Array.isArray(getWithdrawalRequestsIDs) && getWithdrawalRequestsIDs.length > 0) {
             await withdrawalContract.methods.getWithdrawalStatus(getWithdrawalRequestsIDs).call().then((result: any) => {
                 console.log('Withdrawal Status:', result);
             });
         }
-        const requestId = 12472; // 必ず数値型
+
+        const requestId = 12344; // 必ず数値型
         const requestIdBigInt = BigInt(requestId);
         // claim withdrawl ETH
         // await withdrawalContract.methods.claimWithdrawal(requestIdBigInt).send({ from: account.address });
@@ -55,6 +58,14 @@ async function requestWithdrawalRequstID() {
             bothTrue: checkIfBothTrue(data)
         }));
         console.log(result);
+
+        // claim withdrawl ETH
+        if (!result[0].bothTrue) {
+            const claimWithdrawalresult = await withdrawalContract.methods.claimWithdrawal(requestIdBigInt).send({ from: account.address });
+            console.log('claimWithdrawalresult:', claimWithdrawalresult);
+        } else {
+            console.log('すでにclaim済みです');
+        }
 
     } catch (error) {
         console.error('トランザクションに失敗しました:', error);
