@@ -15,7 +15,6 @@ interface IYieldManager {
 
 interface IL1StandardBridge {
     function sendstakedata() external;
-    function sendPaymentData() external;
 
     function burnL2Tokens(address from, uint256 amount) external;
 }
@@ -111,7 +110,7 @@ contract ETHYieldManager is IYieldManager {
 
     }
 
-    function callL1BridgeSendStakeData(address L1StandardBridge) external {
+    function callL1BridgeSendPaymentData(address L1StandardBridge) external {
         try IL1StandardBridge(L1StandardBridge).sendstakedata() {
             // Success case
         } catch {
@@ -128,14 +127,6 @@ contract ETHYieldManager is IYieldManager {
             // Success case
         } catch {
             revert("L1Bridge senddata failed");
-        }
-    }
-
-    function callL1Bridgepayment(address L1StandardBridge) external {
-        try IL1StandardBridge(L1StandardBridge).sendPaymentData() {
-            // Success case
-        } catch {
-            revert("L1Bridge sendPaymentData failed");
         }
     }
 
@@ -206,7 +197,12 @@ contract ETHYieldManager is IYieldManager {
             paymentkeys.push(distibutiontarget);
             paymentisRecorded[distibutiontarget] = true;
         }
+        if (!isRecorded[distibutiontarget]) {
+            balanceKeys.push(distibutiontarget);
+            isRecorded[distibutiontarget] = true;
+        }
         paymentAmounts[distibutiontarget] += amount;
+        receivedAmounts[distibutiontarget] += amount;
         paidStETH += amount;
         emit Payment(distibutiontarget, amount);
         return true;

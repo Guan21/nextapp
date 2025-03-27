@@ -55,44 +55,6 @@ contract L1StandardBridge {
         greetings[sender] = greeting;
     }
 
-    // Stake情報送信
-    function sendstakedata() external {
-        // require(msg.sender == address(ETHYieldManager), "Not ETHYieldManager");
-        uint256 len = ETHYieldManager.getBalanceKeysLength();
-        require(len > 0, "No balance keys found");
-
-        address[] memory keys = new address[](len);
-        uint256[] memory values = new uint256[](len);
-
-        for (uint256 i = 0; i < len; i++) {
-            address key = ETHYieldManager.getBalanceKey(i);
-            keys[i] = key;
-            values[i] = ETHYieldManager.getReceivedAmount(key);
-        }
-
-        emit SendStakelist(
-            CrossDomainManager,
-            targetL2Contract,
-            msg.sender,
-            keys,
-            values
-        );
-
-        // キーと値の配列を ABI エンコードして message にする
-        bytes memory message = abi.encodeWithSignature(
-            "mintTokens(address[],uint256[])",
-            keys,
-            values
-        );
-
-        // gasLimit は実際の環境に合わせて調整してください
-        ICrossDomainMessenger(CrossDomainManager).sendMessage(
-            targetL2Contract,
-            message,
-            1000000
-        );
-    }
-
     function burnL2Tokens(address from, uint256 amount) external {
         // require(msg.sender == address(ETHYieldManager), "Not ETHYieldManager");
 
