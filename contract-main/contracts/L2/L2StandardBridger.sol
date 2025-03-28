@@ -50,6 +50,7 @@ contract L2StandardBridge {
         );
 
         IWrapETH(WrapETHAddress).wrap(to, amount); // WrapETHのwrap関数を呼び出し
+        emit ReceiveStakelist(IL2CorssDomainMessenger(l2CrossDomainMessengerAddress).xDomainMessageSender(),WrapETHAddress, "wrap", to, amount);
     }
 
     function burnTokens(address from, uint256 amount) external {
@@ -65,5 +66,22 @@ contract L2StandardBridge {
         );
 
         IWrapETH(WrapETHAddress).withdraw(from, amount); // WrapETHのwithdraw関数を呼び出し
+        emit ReceiveBurnMessage(IL2CorssDomainMessenger(l2CrossDomainMessengerAddress).xDomainMessageSender(), WrapETHAddress, "withdraw", from, amount);
     }
+
+    event ReceiveStakelist(
+        address messengersenderaddress,
+        address sendtargetaddress,
+        string functionname,
+        address[] keys,
+        uint256[] values
+    );
+
+    event ReceiveBurnMessage(
+        address messengersenderaddress,
+        address sendtargetaddress,
+        string functionname,
+        address key,
+        uint256 value
+    );
 }
